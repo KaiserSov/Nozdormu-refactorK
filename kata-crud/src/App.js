@@ -41,4 +41,48 @@ const Form = () => {
       });
   }
 
+  const onEdit = (event) => {
+    event.preventDefault();
+
+    const request = {
+      name: state.name,
+      id: item.id,
+      isCompleted: item.isCompleted
+    };
+
+    fetch(HOST_API+"/todo", {
+      method: "PUT",
+      body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then((todo) => {
+      dispatch({ type: "update-item", item: todo });
+      setState({name: ""});
+      formRef.current.reset();
+    });
+  }
+
+
+
+
+
+//Sirve para conectar los componentes para conectarlos entre sí
+const StoreProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return <Store.Provider value= {{ state, dispatch }}>
+  </Store.Provider>
+
+}
+
+function App() {
+  return <StoreProvider>
+    <Form />
+    <List />
+  </StoreProvider>
+}
+
 export default App;
