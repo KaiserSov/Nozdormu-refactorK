@@ -65,9 +65,95 @@ const Form = () => {
     });
   }
 
+  return <form ref={formRef}>
+    <input type="text" name="name" defaultValue={item.name}onChange={(event) => {
+      setState({ ...state, name: event.target.value })
+    }} ></input>
+    {item.id && <button onClick={onEdit}>Actualizar</button>}
+    {!item.id && <button onClick={onAdd}>Agregar</button>}
+    
+  </form>
+}
 
+const List = () => {
+  const { dispatch, state} = useContext(Store);
 
+  useEffect(() => {
+    fetch(HOST_API+"/todos")//Promesa
+    .then(response => response.json())
+    .then((List) => {
+      dispatch({type: "update-list", List})
+    })
+  }, [state.List.length, dispatch]);
 
+  const onDelete = (id) => {
+    fetch(HOST_API + "/"+id+"/todo",{
+      method: "DELETE"
+    })
+    .then((List) => {
+      dispatch({ type: "delete-item", id})
+    })
+  };
+
+  const onEdit = (todo) => {
+    dispatch ({ type: "edit-item", item: todo})
+  };
+
+  return <div>
+    <table>
+    <thead>
+      <tr>
+        <td>ID</td>
+        <td>Nombre</td>
+        <td>¿Está completado?</td>
+      </tr>
+    </thead>
+    <tbody>
+      {this.List.map((todo) => {
+        return <tr key={todo.id}>
+          <td>{todo.id}</td>
+          <td>{todo.name}</td>
+          <td>{todo.isCompleted === true? "SI" : "NO"}</td>
+          <td><button onClick={() => onDelete(todo.id)}>Eliminar</button></td>
+          <td><button onClick={() => onEdit(todo)}>Editar</button></td>
+        </tr>
+      })}
+    </tbody>
+  </table>
+  </div>
+  
+}
+
+//Función puera que siempre recibe la misma entrada
+function reducer(state, action) {
+  switch (action, type) {
+    case 'update-item':
+
+    const listUpdateEdit = state.List.map((item) => {
+      if(item.id === action.item.id){
+        return action.item;
+      }
+      return item;
+    });
+    return { ...state, List: listUpdateEdit, item: {}}
+
+    case 'delete-item':
+      const listUpdate = state.List.filter((item) => {
+        return item.id !== action.id;
+      });
+      return { ...state, List: listUpdate }
+    case 'update-list':
+      return { ...state, List: action.List}
+    case 'edit-item':
+        return { ...state, item: action.List}
+    case 'add-item':
+      const newList = state.List;
+      newList.push(action.item);
+      return { ...state, List: newList }
+    default:
+      return state;  
+  }
+}
 
 //Sirve para conectar los componentes para conectarlos entre sí
 const StoreProvider = ({ children }) => {
