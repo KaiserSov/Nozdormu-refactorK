@@ -126,32 +126,39 @@ const List = () => {
 
 //Función puera que siempre recibe la misma entrada
 function reducer(state, action) {
-  switch (action, type) {
+  switch (action.type) {
     case 'update-item':
-
-    const listUpdateEdit = state.List.map((item) => {
-      if(item.id === action.item.id){
-        return action.item;
-      }
-      return item;
-    });
-    return { ...state, List: listUpdateEdit, item: {}}
-
+      const todoUpItem = state.todo;
+      const listUpdateEdit = todoUpItem.list.map((item) => {
+        if (item.id === action.item.id) {
+          return action.item;
+        }
+        return item;
+      });
+      todoUpItem.list = listUpdateEdit;
+      todoUpItem.item = {};
+      return { ...state, todo: todoUpItem }
     case 'delete-item':
-      const listUpdate = state.List.filter((item) => {
+      const todoUpDelete = state.todo;
+      const listUpdate = todoUpDelete.list.filter((item) => {
         return item.id !== action.id;
       });
-      return { ...state, List: listUpdate }
+      todoUpDelete.list = listUpdate;
+      return { ...state, todo: todoUpDelete }
     case 'update-list':
-      return { ...state, List: action.List}
+      const todoUpList = state.todo;
+      todoUpList.list = action.list;
+      return { ...state, todo: todoUpList }
     case 'edit-item':
-        return { ...state, item: action.List}
+      const todoUpEdit = state.todo;
+      todoUpEdit.item = action.item;
+      return { ...state, todo: todoUpEdit }
     case 'add-item':
-      const newList = state.List;
-      newList.push(action.item);
-      return { ...state, List: newList }
+      const todoUp = state.todo.list;
+      todoUp.push(action.item);
+      return { ...state, todo: {list: todoUp, item: {}} }
     default:
-      return state;  
+      return state;
   }
 }
 
